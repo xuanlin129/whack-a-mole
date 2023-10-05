@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Londrina+Solid:wght@100;300;400;900&family=Montserrat&family=Noto+Sans+TC:wght@100;300;400&display=swap"
+    rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Darumadrop+One&display=swap" rel="stylesheet">
+  <title>Document</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      background: url("./images/bgimg.jpeg");
+      background-size: cover;
+      margin: 0;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      /* overflow: hidden; */
+    }
+
+    html,
+    body {
+      width: 100%;
+    }
+
+    #startbg {
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      position: absolute;
+      z-index: 99;
+      background-attachment: fixed;
+    }
+
+    #record {
+      width: 350px;
+      height: 350px;
+      background: url("./images/record.png") no-repeat center/contain;
+      position: absolute;
+      top: 30%;
+      right: 5%;
+      color: #fff;
+      font-family: 'Darumadrop One', cursive, 微軟正黑體;
+      font-size: 24px;
+    }
+
+    #r1 {
+      text-align: center;
+      margin-top: 65px;
+    }
+
+    #r2 {
+      text-align: center;
+      margin-top: 45px;
+    }
+
+    #game {
+      width: 1020px;
+      height: 780px;
+      /* background: rgba(0, 0, 0, 0.5); */
+      overflow: hidden;
+      position: relative;
+      cursor: url("./images/punch1.png") 25 25, auto;
+      margin: auto;
+      top: 140px;
+    }
+
+    #game:active {
+      cursor: url("./images/punch2.png") 25 25, auto;
+    }
+
+    #game .hole {
+      width: 200px;
+      height: 200px;
+      position: absolute;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    #game .mouse {
+      height: 150px;
+      position: absolute;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    .swal2-icon-content {
+      font-family: "Montserrat";
+    }
+
+    #btn-start {
+      width: calc(425px/1.8);
+      height: calc(165px/1.8);
+      background: url("./images/start.png") no-repeat center/contain;
+      border: none;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    #btn-start:hover {
+      cursor: pointer;
+    }
+
+    #btn-start:active {
+      transform: translate(-50%, -50%) scale(0.9);
+    }
+
+    #bgmouse {
+      position: absolute;
+      top: 45%;
+      left: 5%;
+    }
+
+    #bgmouse img {
+      width: calc(777px/3);
+      height: calc(242px/3);
+    }
+  </style>
+</head>
+
+<body>
+  <div id="startbg">
+    <input type="button" value="" id="btn-start">
+  </div>
+  <div id="record">
+    <p id="r1">分數：<span id="text-score">0</span>　剩餘：<span id="text-time">0</span>秒</p>
+    <div id="r2">
+      <p>最高分玩家：<span id="text-highscorename">沒有人</span></p>
+      <p>最高分分數：<span id="text-highscore">0</span></p>
+    </div>
+  </div>
+
+  <div id="game">
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js'
+    integrity='sha512-pumBsjNRGGqkPzKHndZMaAG+bir374sORyzM3uulLV14lN5LyykqNk8eEeUlUkB3U0M4FApyaHraT65ihJhDpQ=='
+    crossorigin='anonymous'></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    const lefts = [0, 200, 400, 600, 800]
+    let zindex = 1
+    // 分數
+    let score = 0
+    // 剩餘秒數
+    let countdown = 0
+    // 計時器
+    let timer = 0
+    // 最高分
+    const highscore = localStorage.zombie ? JSON.parse(localStorage.zombie) : { name: '沒有人', score: 0 }
+    $('#text-highscorename').text(highscore.name)
+    $('#text-highscore').text(highscore.score)
+
+    $('#btn-start').click(function () {
+      $('#startbg').css('display', 'none')
+      // 停用開始按鈕
+      $(this).attr('disabled', true)
+      // 重設
+      score = 0
+      $('#text-score').text(score)
+      countdown = 15
+      $('#text-time').text(countdown)
+      count = setInterval(function () {
+        countdown--
+        $('#text-time').text(countdown)
+      }, 1000)
+      // 開始遊戲
+      timer = setInterval(function () {
+        // 倒數
+        // countdown--
+        // $('#text-time').text(countdown)
+        // 隨機1~10
+        const random = Math.ceil(Math.random() * 10)
+        // 如果隨機數字 > 5 且場上不超過 5 個才產生
+        if (random > 5 && $('.mouse').length < 100) {
+          // 隨機位置
+          const top = Math.round(Math.random() * 72)
+          const left = lefts[Math.round(Math.random() * 4)]
+
+          // 產生
+          const mouse = $(`<img src="./images/dinotaeng-anime.gif" class="mouse" style="top: ${top}%; left: calc(6.4% + ${left}px); z-index: ${top}">`)
+          const hole = $(`<img src="./images/hole.gif" class="hole" style="top: calc(${top}% + 3.5%); left: ${left}px; z-index: ${top}">`)
+
+          $('#game').append(hole)
+          $('#game').append(mouse)
+
+          // move(mouse)
+        }
+        // 時間到
+        if (countdown === 0) {
+          clearInterval(timer)
+          clearInterval(count)
+          // 遊戲區域清空
+          $('#game').html(``)
+          $('#game img').remove()
+          $('#startbg').css('display', 'block')
+          $('#btn-start').attr('disabled', false)
+          // alert(`你得了${score}分`)
+
+          if (score > highscore.score) {
+            Swal.fire({
+              imageAlt: 'Custom image',
+              imageUrl: 'https://storage.googleapis.com/sticker-prod/VukU4adwKcicOyiBKqfI/15-1.png',
+              imageWidth: 320,
+              imageHeight: 300,
+              // icon: 'info',
+              title: '時間到',
+              text: `最高分，你得到${score}分`,
+              input: 'text',
+              background: 'linear-gradient(#fff 55%, wheat 55%)',
+              inputPlaceholder: '請輸入玩家名稱',
+              inputAttributes: {
+                required: true
+              },
+              validationMessage: '名稱必填',
+              allowOutsideClick: false,
+              allowEscapeKey: false
+            }).then(function (result) {
+              highscore.name = result.value
+              highscore.score = score
+              $('#text-highscorename').text(highscore.name)
+              $('#text-highscore').text(highscore.score)
+
+              localStorage.zombie = JSON.stringify(highscore)
+            })
+
+            // highscore.name = prompt('最高分，請輸入名字') || '路人'
+          } else {
+            Swal.fire({
+              background: 'linear-gradient(#fff 65%, wheat 65%)',
+              color: '#000',
+              title: '時間到',
+              text: `你得了${score}分`,
+              imageUrl: 'https://storage.googleapis.com/sticker-prod/VukU4adwKcicOyiBKqfI/4-1.png',
+              imageWidth: 320,
+              imageHeight: 300,
+              imageAlt: 'Custom image',
+            })
+          }
+        }
+      }, 500)
+    })
+
+    $('#game').on('click', '.mouse', function () {
+      // $(this).attr('src', './blood.png')
+      $(this).removeClass('mouse')
+      $(this).css('display', 'none')
+      $(this).prev().css('z-index', -1)
+      // $(this).prev().remove()
+      // $(this).remove()
+      $(this).stop()
+      score++
+      $('#text-score').text(score)
+      setTimeout(() => {
+        $(this).prev().remove()
+        $(this).remove()
+      }, 500)
+    })
+  </script>
+</body>
+
+</html>
